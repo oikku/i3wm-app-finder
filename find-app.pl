@@ -53,7 +53,7 @@ parse_window_list([Window|T], Out, Parent) :-
     parse_window(Window, O1, Parent),
     parse_window_list(T, O2, Parent),
     lists:append(O1, O2, Out).
-parse_window_list([], _, _).
+parse_window_list([], [], _).
 
 print_names(_, []).
 print_names(In, [H|T]) :-
