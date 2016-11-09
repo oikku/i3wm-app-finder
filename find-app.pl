@@ -37,26 +37,23 @@ ignore_window(Window) :-
     _{geometry: Geometry} :< Window,
     _{width: 0, height: 0} :< Geometry.
 
-parse_window_tree([], [], _).
-parse_window_tree([H|T], Out, Parent) :-
-    parse_window(H, W, Parent),
-    parse_window_tree(T, R, Parent),
-    lists:append(W, R, Out).
-
-parse_window(In, Out, Parent) :-
-    ignore_window(In),
-    _{nodes: Nodes, name:Name} :< In,
-    !,
+parse_window(Window, Out, Parent) :-
+    ignore_window(Window),
+    _{nodes: Nodes, name:Name} :< Window,
     (Name = null -> P = Parent; P = Name),
-    parse_window_tree(Nodes, Out, P).
-parse_window(In, Out, Parent) :-
-    _{id: Id, name: Name, focused: Focused, nodes: Nodes} :< In,
-    !,
+    parse_window_list(Nodes, Out, P).
+parse_window(Window, [R|Out], Parent) :-
+    _{id: Id, name: Name, focused: Focused, nodes: Nodes} :< Window,
     (Name = null -> P = Parent; P = Name),
-    parse_window_tree(Nodes, R, P),
     atomics_to_string(['[', Parent ,'] ', Name,' (', Id, ')'], Key),
-    lists:append([ _{id:Id, name:Name, focused: Focused, key:Key} ], R, Out).
-parse_window(_, [], _).
+    R = _{id:Id, name:Name, focused: Focused, key:Key},
+    parse_window_list(Nodes, Out, P).
+
+parse_window_list([Window|T], Out, Parent) :-
+    parse_window(Window, O1, Parent),
+    parse_window_list(T, O2, Parent),
+    lists:append(O1, O2, Out).
+parse_window_list([], _, _).
 
 print_names(_, []).
 print_names(In, [H|T]) :-
