@@ -37,12 +37,11 @@ take_screenshot(R, window) :-
 
 create_filename(Filename) :-
     get_time(Time),
-    stamp_date_time(Time, Date, local),
-    date(Year,Month,Day,Hour,Min,Sec,_,_,_) = Date,
+    format_time(atom(FormattedTime), '%Y-%m-%dT%H%m%S', Time),
     getenv('HOME', HomeDir),
     atomics_to_string([
             HomeDir, '/screenshots/screenshot-', 
-            Year, '-', Month, '-', Day, '_', Hour, '.', Min, '.', Sec, 
+            FormattedTime, 
             '.png'], Filename).
     
 
