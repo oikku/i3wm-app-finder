@@ -29,25 +29,27 @@ select_window(Key, [W|_]) :-
 select_window(Key, [_|T]) :- select_window(Key, T).
 
 
-ignore_window(Window) :- get_dict(geometry, Window, false).
+ignore_window(Window) :- false = Window.geometry.
 ignore_window(Window) :-
     _{window_properties: Props} :< Window,
     get_dict(class, Props, "i3bar").
 ignore_window(Window) :- 
-    _{geometry: Geometry} :< Window,
-    _{width: 0, height: 0} :< Geometry.
+    _{width: 0, height: 0} :< Window.geometry.
 
 parse_window(Window, Out, Parent) :-
     ignore_window(Window),
     _{nodes: Nodes, name:Name} :< Window,
-    (Name = null -> P = Parent; P = Name),
+    set_parent(Name, Parent, P),
     parse_window_list(Nodes, Out, P).
 parse_window(Window, [R|Out], Parent) :-
     _{id: Id, name: Name, focused: Focused, nodes: Nodes} :< Window,
-    (Name = null -> P = Parent; P = Name),
+    set_parent(Name, Parent, P),
     atomics_to_string(['[', Parent ,'] ', Name,' (', Id, ')'], Key),
     R = _{id:Id, name:Name, focused: Focused, key:Key},
     parse_window_list(Nodes, Out, P).
+
+set_parent(null, Parent, Parent).
+set_parent(Name, _, Name) :- \+ Name = null.
 
 parse_window_list([Window|T], Out, Parent) :-
     parse_window(Window, O1, Parent),
