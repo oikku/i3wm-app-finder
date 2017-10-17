@@ -37,7 +37,7 @@ take_screenshot(R, window) :-
 
 create_filename(Filename) :-
     get_time(Time),
-    format_time(atom(FormattedTime), '%Y-%m-%dT%H%m%S', Time),
+    format_time(atom(FormattedTime), '%Y-%m-%dT%H%m%S.%3f', Time),
     getenv('HOME', HomeDir),
     atomics_to_string([
             HomeDir, '/screenshots/screenshot-', 
